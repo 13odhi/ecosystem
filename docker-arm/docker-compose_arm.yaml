@@ -203,6 +203,15 @@ services:
     depends_on: 
       - ecosystem-server
 
+  ecosystem-manager:
+    image: ecosystemai/ecosystem-manager
+    container_name: ecosystem-manager
+    restart: unless-stopped
+    networks:
+      - ecosystem
+    depends_on:
+      - ecosystem-server
+
 networks:
   ecosystem:
     external: true
