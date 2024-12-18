@@ -22,7 +22,6 @@ services:
     container_name: ecosystem-server
     restart: unless-stopped
     environment:
-      CLOUD__: ecosystem-azure-marketplace
       MASTER_KEY: ${ECOSYSTEM_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       IP: http://localhost
@@ -124,6 +123,15 @@ services:
     ports:
       - "3000:3000"
     depends_on: 
+      - ecosystem-server
+
+  ecosystem-manager:
+    image: ecosystemai/ecosystem-manager
+    container_name: ecosystem-manager
+    restart: unless-stopped
+    networks:
+      - ecosystem
+    depends_on:
       - ecosystem-server
 
 networks:
