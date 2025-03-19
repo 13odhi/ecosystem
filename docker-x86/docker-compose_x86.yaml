@@ -10,12 +10,10 @@ services:
     ports:
       - "80:80"
     depends_on: 
-      - ecosystem-server
-      - ecosystem-runtime-solo
-      - ecosystem-runtime-solo2
-      - ecosystem-runtime-solo3
-      - ecosystem-notebooks
-      - ecosystem-grafana
+      ecosystem-server:
+        condition: service_healthy
+      ecosystem-runtime-solo:
+        condition: service_started
 
   ecosystem-server:
     image: ecosystemai/ecosystem-server:latest
@@ -36,6 +34,11 @@ services:
       - "3001:3001"
       - "54445:54445"
       - "54321:54321"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --quiet http://localhost:3001/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   ecosystem-runtime-solo:
     image: ecosystemai/ecosystem-runtime-solo:latest
@@ -53,7 +56,8 @@ services:
     ports:
       - "8091:8091"
     depends_on: 
-      - ecosystem-server
+      ecosystem-server:
+        condition: service_healthy
 
   ecosystem-runtime-solo2:
     image: ecosystemai/ecosystem-runtime-solo:latest
@@ -72,7 +76,8 @@ services:
     ports:
       - "8092:8092"
     depends_on:
-      - ecosystem-server
+      ecosystem-server:
+        condition: service_healthy
 
   ecosystem-runtime-solo3:
     image: ecosystemai/ecosystem-runtime-solo:latest
@@ -91,7 +96,8 @@ services:
     ports:
       - "8093:8093"
     depends_on:
-      - ecosystem-server
+      ecosystem-server:
+        condition: service_healthy
 
 
   ecosystem-notebooks:
@@ -110,7 +116,8 @@ services:
       - "5111:8000"
       - "8010:8010"
     depends_on: 
-      - ecosystem-server
+      ecosystem-server:
+        condition: service_healthy
 
   ecosystem-grafana:
     image: ecosystemai/ecosystem-grafana:latest
@@ -118,12 +125,20 @@ services:
     restart: unless-stopped
     environment:
       GF_SECURITY_ALLOW_EMBEDDING: true
+      GF_AUTH_JWT_URL: http://ecosystem-server:3001/api/auth/login
+      GF_AUTH_USERNAME: admin@ecosystem.ai
+      GF_AUTH_PASSWORD: password
+    volumes:
+      - ./grafana:/var/lib/grafana
     networks:
       - ecosystem
     ports:
       - "3000:3000"
-    depends_on: 
-      - ecosystem-server
+    depends_on:
+      ecosystem-server:
+        condition: service_healthy
+      ecosystem-runtime-solo:
+        condition: service_started
 
   ecosystem-manager:
     image: ecosystemai/ecosystem-manager
@@ -132,7 +147,10 @@ services:
     networks:
       - ecosystem
     depends_on:
-      - ecosystem-server
+      ecosystem-server:
+        condition: service_healthy
+      ecosystem-runtime-solo:
+        condition: service_started
 
 networks:
   ecosystem:
