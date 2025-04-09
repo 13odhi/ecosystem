@@ -4,7 +4,7 @@ services:
     container_name: ecosystem-workbench
     restart: unless-stopped
     environment:
-      IP: http://127.0.0.1
+      IP: ${SERVER_IP}
       PORT: "3001"
     networks:
       - ecosystem
@@ -23,7 +23,7 @@ services:
     environment:
       MASTER_KEY: ${ECOSYSTEM_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      IP: http://127.0.0.1
+      IP: ${SERVER_IP}
       PORT: 3001
       CLI_SETTINGS: -Dserver.port=3001
       RESET_USER: "true"
