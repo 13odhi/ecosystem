@@ -214,7 +214,7 @@ services:
     networks:
       - ecosystem
     ports:
-      - "3004:3000"
+      - "3000:3000"
     depends_on: 
       ecosystem-server:
         condition: service_healthy
